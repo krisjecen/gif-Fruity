@@ -5,25 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>gif-Fruity</title>
+    <link rel="stylesheet" href="assets/css/reset.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
     <!-- section where gif buttons will be added -->
     <div class="container">
         <h1>gif-Fruity</h1>
-    
-        <!-- Fruit gif buttons will be placed here -->
-        <div id="buttonList"></div>
-    
+        <div class="row">
+            <!-- Fruit gif buttons will be placed here -->
+            <div class="col-8" id="buttonList"></div>
         
+            
 
-    <!-- section for form where user can add more gif buttons -->
-        <form id="newGifsForm">
-            <label for="newGifs">Add another fruit?</label>
-            <input type="text" id="newGifs">
+        <!-- section for form where user can add more gif buttons -->
+            <form class="col-4" id="newGifsForm">
+                <label for="newGifs">Add another fruit?</label>
+                <input type="text" id="newGifs">
 
-            <!-- Button triggers new fruit (we hope) to be added to our array-->
-            <input id="addFruit" type="submit" value="Yes, this fruit">
-        </form>
+                <!-- Button triggers new fruit (we hope) to be added to our array-->
+                <input id="addFruit" type="submit" value="Yes, this fruit">
+            </form>
+    
+        </div>
     </div>
 
     <script type="text/javascript" src="assets/javascript/app.js"></script>
