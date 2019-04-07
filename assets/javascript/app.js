@@ -1,7 +1,7 @@
 // js for gif-Fruity app
 
 // declare variables
-var fruits = ["pumpkin", "cherry"]; // initial small set of fruits for testing
+var topics = ["pumpkin", "cherry"];
 var fruitGifsArea = document.getElementById("fruitGifsArea");
 
 
@@ -12,7 +12,7 @@ function populateButtonList() {
     // clear our button html area since it's about to get updated and rewritten
     document.getElementById("buttonList").innerHTML = "";
 
-    for (let fruit of fruits) {
+    for (let fruit of topics) {
         // create a button for each fruit listed in our array
         var addedFruit = document.createElement("button");
         // add a class of "fruit" to the element for future use/styling
@@ -74,8 +74,9 @@ function serveUpFruityGifs(event) {
                             fruitGif.setAttribute("alt", "fruit gif");
 
                             // add the elements into the span
-                            gifSpan.appendChild(ratingText);
                             gifSpan.appendChild(fruitGif);
+                            gifSpan.appendChild(ratingText);
+
 
                             fruitGifsArea.insertBefore(gifSpan, fruitGifsArea.firstChild);
                         }
@@ -112,14 +113,14 @@ function serveUpFruityGifs(event) {
                                 var rating = item.rating;
                                 ratingText.textContent = `Rating: ${rating}`
     
-                                // create an img tag for the gif image
+                                // create an img tag for the gif image & set its attributes so it can be animated
                                 var fruitGif = document.createElement("img");
                                 fruitGif.setAttribute("src", item.images.fixed_height_still.url);
                                 fruitGif.setAttribute("alt", "fruit gif");
     
                                 // add the elements into the span
-                                gifSpan.appendChild(ratingText);
                                 gifSpan.appendChild(fruitGif);
+                                gifSpan.appendChild(ratingText);
     
                                 fruitGifsArea.insertBefore(gifSpan, fruitGifsArea.firstChild);
                             }
@@ -130,14 +131,12 @@ function serveUpFruityGifs(event) {
             xhr.send();
         }
 
-        // managing the data
         // we want the still image, the motion gif, and the rating
         // 
 
 
         // populate section for the gifs to appear (side by side and spill over?)
 
-        // need to be still (stationary) on load -- we will add in the start/stop toggle
     }
     
 }
@@ -155,7 +154,7 @@ document.getElementById("addFruit").addEventListener("click", function(event){
         // grab the text entered into the form
         fruit = document.getElementById("newGifs").value.trim();
         // add the entered fruit to our list of fruits
-        fruits.push(fruit);
+        topics.push(fruit);
         // generate the buttons using our updated list
         populateButtonList();
         // clear the text field of the input form for easier follow-up use
