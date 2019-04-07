@@ -35,61 +35,105 @@ function serveUpFruityGifs(event) {
         //var getFruitGifs = event.target.dataset.name;
 
         console.log(getFruitGifs);
+        // clear the gifs section (clear out previously shown gifs)
         fruitGifsArea.innerHTML = "";
 
         // request gifs from giphy using the fruit name as the query
         var queryURL = `https://api.giphy.com/v1/gifs/search?q=${getFruitGifs}&api_key=fdYHoYcYVDFUlKAY767cni3noXeN0Kkd&limit=10`;
 
         // make AJAX GET request using fetch / XHR
-        fetch(queryURL, {
-            method: "GET"
-        })
-            .then(function(response) {
-                return response.json();
+
+        // if fetch is supported
+        if (window.fetch) {
+            fetch(queryURL, {
+                method: "GET"
             })
-            .then(function(response){
-                // store an array of results from the data
-                var results = response.data;
-                console.log(results);
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(response){
+                    // store an array of results from the data
+                    var results = response.data;
+
+                    for (let item of results) {
+                        // limiting gif ratings to G and PG
+                        if (item.rating == "g" || item.rating == "pg") {
+
+                            // create an inline element that will hold the gif image & its rating
+                            var gifSpan = document.createElement("span");
+                            gifSpan.classList.add("d-inline-block");
+
+                            // create an element for the rating, store the rating data, and display it
+                            var ratingText = document.createElement("p");
+                            var rating = item.rating;
+                            ratingText.textContent = `Rating: ${rating}`
+
+                            // create an img tag for the gif image
+                            var fruitGif = document.createElement("img");
+                            fruitGif.setAttribute("src", item.images.fixed_height_still.url);
+                            fruitGif.setAttribute("alt", "fruit gif");
+
+                            // add the elements into the span
+                            gifSpan.appendChild(ratingText);
+                            gifSpan.appendChild(fruitGif);
+
+                            fruitGifsArea.insertBefore(gifSpan, fruitGifsArea.firstChild);
+                        }
+                    }
 
 
+                });
+        // if fetch isn't supported, use XHR
+        } else {
+            const xhr = new XMLHttpRequest();
 
-                for (let item of results) {
-                    // console.log(item.images.fixed_height_still.url);
-                    // only allowing items to display that aren't rated R or PG-13
-                    if (item.rating == "g" || item.rating == "pg") {
-                    // would this ^ be better if i said yes G or PG instead of no R & no PG-13? (testing)
+            xhr.open("GET", queryURL);
 
-                        // create an inline element that will hold the gif image & its rating
-                        var gifSpan = document.createElement("span");
-                        gifSpan.classList.add("d-inline-block");
+            xhr.onload = event => {
 
-                        // create an element for the rating, store the rating data, and display it
-                        var ratingText = document.createElement("p");
-                        var rating = item.rating;
-                        ratingText.textContent = `Rating: ${rating}`
+                if (xhr.readyState === 4) {
 
-                        // create an img tag for the gif image
-                        var fruitGif = document.createElement("img");
-                        fruitGif.setAttribute("src", item.images.fixed_height_still.url);
-                        fruitGif.setAttribute("alt", "fruit gif");
+                    if (xhr.status === 200) {
+                        let response = JSON.parse(xhr.responseText);
 
-                        // add the elements into the span
-                        gifSpan.appendChild(ratingText);
-                        gifSpan.appendChild(fruitGif);
-
-                        fruitGifsArea.insertBefore(gifSpan, fruitGifsArea.firstChild);
+                        var results = response.data;
+                        
+                        // turn this loop into a function later?
+                        for (let item of results) {
+                            // limiting gif ratings to G and PG
+                            if (item.rating == "g" || item.rating == "pg") {
+    
+                                // create an inline element that will hold the gif image & its rating
+                                var gifSpan = document.createElement("span");
+                                gifSpan.classList.add("d-inline-block");
+    
+                                // create an element for the rating, store the rating data, and display it
+                                var ratingText = document.createElement("p");
+                                var rating = item.rating;
+                                ratingText.textContent = `Rating: ${rating}`
+    
+                                // create an img tag for the gif image
+                                var fruitGif = document.createElement("img");
+                                fruitGif.setAttribute("src", item.images.fixed_height_still.url);
+                                fruitGif.setAttribute("alt", "fruit gif");
+    
+                                // add the elements into the span
+                                gifSpan.appendChild(ratingText);
+                                gifSpan.appendChild(fruitGif);
+    
+                                fruitGifsArea.insertBefore(gifSpan, fruitGifsArea.firstChild);
+                            }
+                        }
                     }
                 }
-
-
-            })
+            }
+            xhr.send();
+        }
 
         // managing the data
         // we want the still image, the motion gif, and the rating
         // 
 
-        // clear the gifs section (clear out previously shown gifs)
 
         // populate section for the gifs to appear (side by side and spill over?)
 
