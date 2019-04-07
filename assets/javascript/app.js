@@ -1,11 +1,8 @@
 // js for gif-Fruity app
-
+'use strict'
 // declare variables
-var topics = ["pumpkin", "cherry"];
+var topics = ["pumpkin", "cherry", "honeydew", "peaches", "pear"];
 var fruitGifsArea = document.getElementById("fruitGifsArea");
-
-
-// create space for fruit gifs to populate
 
 // function to generate buttons from fruits array
 function populateButtonList() {
@@ -29,12 +26,9 @@ function populateButtonList() {
 // instructions following click event for fruit gif generation buttons
 function serveUpFruityGifs(event) {
     if (event.target.classList.contains("fruit")) {
-        // do i have to use "this"? it seems to work with event.target instead >_>
-        var getFruitGifs = event.target.dataset.name.replace(' ', '+');
-        // test whether the API escapes the query for me
-        //var getFruitGifs = event.target.dataset.name;
+        // set the trimmed query value into a variable that will be used in our queryURL
+        var getFruitGifs = event.target.dataset.name.trim();
 
-        console.log(getFruitGifs);
         // clear the gifs section (clear out previously shown gifs)
         fruitGifsArea.innerHTML = "";
 
@@ -45,16 +39,19 @@ function serveUpFruityGifs(event) {
 
         // if fetch is supported
         if (window.fetch) {
+            // set up an AJAX GET request to our queryURL
             fetch(queryURL, {
                 method: "GET"
             })
+            // once we get our data, convert the data to json so we can use it more easily
                 .then(function(response) {
                     return response.json();
                 })
                 .then(function(response){
-                    // store an array of results from the data
+                    // store the response data in a variable
                     var results = response.data;
 
+                    // for each part of our results (for each batch of image data we get back), we will...
                     for (let item of results) {
                         // limiting gif ratings to G and PG
                         if (item.rating == "g" || item.rating == "pg") {
@@ -68,17 +65,20 @@ function serveUpFruityGifs(event) {
                             var rating = item.rating;
                             ratingText.textContent = `Rating: ${rating}`
 
-                            // create an img tag for the gif image
+                            // create an img tag for the gif image & set its attributes so it can be animated
                             var fruitGif = document.createElement("img");
                             fruitGif.setAttribute("src", item.images.fixed_height_still.url);
+                            fruitGif.setAttribute("data-still", item.images.fixed_height_still.url);
+                            fruitGif.setAttribute("data-animate", item.images.fixed_height.url);
+                            fruitGif.setAttribute("data-state", "still");
                             fruitGif.setAttribute("alt", "fruit gif");
 
                             // add the elements into the span
                             gifSpan.appendChild(fruitGif);
                             gifSpan.appendChild(ratingText);
 
-
-                            fruitGifsArea.insertBefore(gifSpan, fruitGifsArea.firstChild);
+                            // insert the gif into the designated area on the page
+                            fruitGifsArea.appendChild(gifSpan);
                         }
                     }
 
@@ -86,20 +86,22 @@ function serveUpFruityGifs(event) {
                 });
         // if fetch isn't supported, use XHR
         } else {
+            // create new xhr object
             const xhr = new XMLHttpRequest();
-
+            // set an AJAX GET request using our queryURL
             xhr.open("GET", queryURL);
-
+            // once the xhr loads, we want to...
             xhr.onload = event => {
-
+                // check if the request to Giphy's API has finished...
                 if (xhr.readyState === 4) {
-
+                    // check of the request has successfully retrieved data from Giphy's API
                     if (xhr.status === 200) {
+                        // parse our response into json so we can grab parts of it more easily
                         let response = JSON.parse(xhr.responseText);
-
+                        // put the data into a variable so we can access it
                         var results = response.data;
                         
-                        // turn this loop into a function later?
+                        // for each part of our results (for each batch of image data we get back), we will...
                         for (let item of results) {
                             // limiting gif ratings to G and PG
                             if (item.rating == "g" || item.rating == "pg") {
@@ -116,40 +118,35 @@ function serveUpFruityGifs(event) {
                                 // create an img tag for the gif image & set its attributes so it can be animated
                                 var fruitGif = document.createElement("img");
                                 fruitGif.setAttribute("src", item.images.fixed_height_still.url);
+                                fruitGif.setAttribute("data-still", item.images.fixed_height_still.url);
+                                fruitGif.setAttribute("data-animate", item.images.fixed_height.url);
+                                fruitGif.setAttribute("data-state", "still");
                                 fruitGif.setAttribute("alt", "fruit gif");
     
-                                // add the elements into the span
+                                // append the elements to the span in the order specified
                                 gifSpan.appendChild(fruitGif);
                                 gifSpan.appendChild(ratingText);
-    
+                                
+                                // insert the gifs into the designated area on the page
                                 fruitGifsArea.insertBefore(gifSpan, fruitGifsArea.firstChild);
                             }
                         }
                     }
                 }
             }
+            // send the xhr request
             xhr.send();
         }
-
-        // we want the still image, the motion gif, and the rating
-        // 
-
-
-        // populate section for the gifs to appear (side by side and spill over?)
-
     }
-    
 }
 
 // click event for adding fruits form "Yes, this fruit" button
 document.getElementById("addFruit").addEventListener("click", function(event){
-    
-
     // // since we are submitting a form, we don't want to refresh the page, so we prevent that default action
     event.preventDefault();
 
     var fruit = document.getElementById("newGifs").value;
-    // check that the value of the form isn't empty
+    // check that the value of the form isn't empty or too short to be a fruit
     if (fruit.length > 2) {
         // grab the text entered into the form
         fruit = document.getElementById("newGifs").value.trim();
@@ -166,6 +163,30 @@ document.getElementById("addFruit").addEventListener("click", function(event){
 
 // click event for fruit buttons
 document.getElementById("container").addEventListener("click", serveUpFruityGifs);
+
+// toggle animation when images are clicked
+document.querySelector('.container').addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() === 'img') {
+        // assign a variable for the target so we can update its attributes
+        let clickedImg = event.target;
+        // assign a variable to our target's state so we can update the state
+        var state = clickedImg.dataset.state;
+
+        // if the image state is still...
+        if (state === "still") {
+            // change the source to the animated gif
+            clickedImg.setAttribute('src', clickedImg.dataset.animate);
+            // and set the state to animate
+            clickedImg.setAttribute('data-state', 'animate');
+        // if the image is something besides still...
+        } else {
+            // change its source to the still image
+            clickedImg.setAttribute('src', clickedImg.dataset.still);
+            // and change its state to still
+            clickedImg.setAttribute('data-state', 'still');
+        }
+    }
+})
 
 // initial call of our button generation function
 populateButtonList();
